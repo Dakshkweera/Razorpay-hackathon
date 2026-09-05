@@ -1,0 +1,1179 @@
+{
+  "$defs": {
+    "Attempt": {
+      "properties": {
+        "attributed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Attributed"
+        },
+        "check": {
+          "title": "Check",
+          "type": "string"
+        },
+        "outcome": {
+          "title": "Outcome",
+          "type": "string"
+        }
+      },
+      "required": [
+        "attributed",
+        "check",
+        "outcome"
+      ],
+      "title": "Attempt",
+      "type": "object"
+    },
+    "BatchReport": {
+      "properties": {
+        "adjustment_count": {
+          "default": 0,
+          "title": "Adjustment Count",
+          "type": "integer"
+        },
+        "bank_credit": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bank Credit"
+        },
+        "bank_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bank Date"
+        },
+        "bank_narration": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bank Narration"
+        },
+        "bank_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bank Ref"
+        },
+        "components": {
+          "items": {
+            "$ref": "#/$defs/GapComponent"
+          },
+          "title": "Components",
+          "type": "array"
+        },
+        "explained": {
+          "default": 0,
+          "title": "Explained",
+          "type": "integer"
+        },
+        "gross_settled": {
+          "default": 0,
+          "title": "Gross Settled",
+          "type": "integer"
+        },
+        "headline_gap": {
+          "default": 0,
+          "title": "Headline Gap",
+          "type": "integer"
+        },
+        "match": {
+          "$ref": "#/$defs/Match"
+        },
+        "orders_expected": {
+          "default": 0,
+          "title": "Orders Expected",
+          "type": "integer"
+        },
+        "payment_count": {
+          "default": 0,
+          "title": "Payment Count",
+          "type": "integer"
+        },
+        "refund_count": {
+          "default": 0,
+          "title": "Refund Count",
+          "type": "integer"
+        },
+        "residual": {
+          "default": 0,
+          "title": "Residual",
+          "type": "integer"
+        },
+        "row_count": {
+          "default": 0,
+          "title": "Row Count",
+          "type": "integer"
+        },
+        "settled_at": {
+          "format": "date-time",
+          "title": "Settled At",
+          "type": "string"
+        },
+        "settlement_expected_credit": {
+          "default": 0,
+          "title": "Settlement Expected Credit",
+          "type": "integer"
+        },
+        "settlement_id": {
+          "title": "Settlement Id",
+          "type": "string"
+        },
+        "settlement_residual": {
+          "default": 0,
+          "title": "Settlement Residual",
+          "type": "integer"
+        },
+        "total_fee": {
+          "default": 0,
+          "title": "Total Fee",
+          "type": "integer"
+        },
+        "total_tax": {
+          "default": 0,
+          "title": "Total Tax",
+          "type": "integer"
+        },
+        "trace": {
+          "items": {
+            "$ref": "#/$defs/TraceEntry"
+          },
+          "title": "Trace",
+          "type": "array"
+        },
+        "utr": {
+          "title": "Utr",
+          "type": "string"
+        },
+        "window_end": {
+          "format": "date",
+          "title": "Window End",
+          "type": "string"
+        },
+        "window_start": {
+          "format": "date",
+          "title": "Window Start",
+          "type": "string"
+        }
+      },
+      "required": [
+        "adjustment_count",
+        "bank_credit",
+        "bank_date",
+        "bank_narration",
+        "bank_ref",
+        "components",
+        "explained",
+        "gross_settled",
+        "headline_gap",
+        "match",
+        "orders_expected",
+        "payment_count",
+        "refund_count",
+        "residual",
+        "row_count",
+        "settled_at",
+        "settlement_expected_credit",
+        "settlement_id",
+        "settlement_residual",
+        "total_fee",
+        "total_tax",
+        "trace",
+        "utr",
+        "window_end",
+        "window_start"
+      ],
+      "title": "BatchReport",
+      "type": "object"
+    },
+    "CaseStatus": {
+      "enum": [
+        "pass",
+        "fail",
+        "pending"
+      ],
+      "title": "CaseStatus",
+      "type": "string"
+    },
+    "ColumnMapping": {
+      "properties": {
+        "canonical": {
+          "title": "Canonical",
+          "type": "string"
+        },
+        "confidence": {
+          "default": 1.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "method": {
+          "$ref": "#/$defs/MappingMethod"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "canonical",
+        "confidence",
+        "method",
+        "source"
+      ],
+      "title": "ColumnMapping",
+      "type": "object"
+    },
+    "ComponentKind": {
+      "enum": [
+        "fee",
+        "gst_on_fee",
+        "fee_rate_drift",
+        "cross_cycle_refund",
+        "unlinked_adjustment",
+        "rounding",
+        "unexplained"
+      ],
+      "title": "ComponentKind",
+      "type": "string"
+    },
+    "ComponentSource": {
+      "enum": [
+        "deterministic",
+        "llm"
+      ],
+      "title": "ComponentSource",
+      "type": "string"
+    },
+    "Count": {
+      "properties": {
+        "n": {
+          "default": 0,
+          "title": "N",
+          "type": "integer"
+        },
+        "pct": {
+          "default": 0.0,
+          "title": "Pct",
+          "type": "number"
+        }
+      },
+      "required": [
+        "n",
+        "pct"
+      ],
+      "title": "Count",
+      "type": "object"
+    },
+    "EvalBatch": {
+      "properties": {
+        "components": {
+          "items": {
+            "$ref": "#/$defs/EvalComponent"
+          },
+          "title": "Components",
+          "type": "array"
+        },
+        "passed": {
+          "default": false,
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "reported_gap": {
+          "title": "Reported Gap",
+          "type": "integer"
+        },
+        "settlement_id": {
+          "title": "Settlement Id",
+          "type": "string"
+        },
+        "truth_gap": {
+          "title": "Truth Gap",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "components",
+        "passed",
+        "reported_gap",
+        "settlement_id",
+        "truth_gap"
+      ],
+      "title": "EvalBatch",
+      "type": "object"
+    },
+    "EvalCase": {
+      "description": "One of the planted cases from the PRD's table, scored explicitly.",
+      "properties": {
+        "actual": {
+          "title": "Actual",
+          "type": "string"
+        },
+        "expected": {
+          "title": "Expected",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "number": {
+          "title": "Number",
+          "type": "integer"
+        },
+        "status": {
+          "$ref": "#/$defs/CaseStatus"
+        }
+      },
+      "required": [
+        "actual",
+        "expected",
+        "name",
+        "number",
+        "status"
+      ],
+      "title": "EvalCase",
+      "type": "object"
+    },
+    "EvalComponent": {
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/ComponentKind"
+        },
+        "reported_amount": {
+          "title": "Reported Amount",
+          "type": "integer"
+        },
+        "truth_amount": {
+          "title": "Truth Amount",
+          "type": "integer"
+        },
+        "verdict": {
+          "$ref": "#/$defs/Verdict"
+        }
+      },
+      "required": [
+        "kind",
+        "reported_amount",
+        "truth_amount",
+        "verdict"
+      ],
+      "title": "EvalComponent",
+      "type": "object"
+    },
+    "EvalReport": {
+      "properties": {
+        "batches": {
+          "items": {
+            "$ref": "#/$defs/EvalBatch"
+          },
+          "title": "Batches",
+          "type": "array"
+        },
+        "cases": {
+          "items": {
+            "$ref": "#/$defs/EvalCase"
+          },
+          "title": "Cases",
+          "type": "array"
+        },
+        "cases_failed": {
+          "default": 0,
+          "title": "Cases Failed",
+          "type": "integer"
+        },
+        "cases_passed": {
+          "default": 0,
+          "title": "Cases Passed",
+          "type": "integer"
+        },
+        "cases_pending": {
+          "default": 0,
+          "title": "Cases Pending",
+          "type": "integer"
+        },
+        "cases_total": {
+          "default": 0,
+          "title": "Cases Total",
+          "type": "integer"
+        },
+        "false_cause_attributions": {
+          "default": 0,
+          "title": "False Cause Attributions",
+          "type": "integer"
+        },
+        "false_matches": {
+          "default": 0,
+          "title": "False Matches",
+          "type": "integer"
+        },
+        "gap_accuracy_pct": {
+          "default": 0.0,
+          "title": "Gap Accuracy Pct",
+          "type": "number"
+        }
+      },
+      "required": [
+        "batches",
+        "cases",
+        "cases_failed",
+        "cases_passed",
+        "cases_pending",
+        "cases_total",
+        "false_cause_attributions",
+        "false_matches",
+        "gap_accuracy_pct"
+      ],
+      "title": "EvalReport",
+      "type": "object"
+    },
+    "ExceptionKind": {
+      "enum": [
+        "ambiguous_match",
+        "duplicate_utr",
+        "unmatched_bank_credit",
+        "unmatched_settlement",
+        "unexplained_residue"
+      ],
+      "title": "ExceptionKind",
+      "type": "string"
+    },
+    "ExceptionReport": {
+      "description": "An honest exception, built to be actionable rather than a dump.\n\n``tried`` and ``ruled_out`` are what separate \"we could not explain this\" from\n\"we did not look\". A finance team can act on the first and cannot act on the\nsecond.",
+      "properties": {
+        "amount": {
+          "title": "Amount",
+          "type": "integer"
+        },
+        "bank_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bank Ref"
+        },
+        "candidates": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Candidates",
+          "type": "array"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/ExceptionKind"
+        },
+        "needs": {
+          "default": "",
+          "title": "Needs",
+          "type": "string"
+        },
+        "ruled_out": {
+          "items": {
+            "$ref": "#/$defs/RuledOut"
+          },
+          "title": "Ruled Out",
+          "type": "array"
+        },
+        "settlement_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Settlement Id"
+        },
+        "threshold": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Threshold"
+        },
+        "tried": {
+          "items": {
+            "$ref": "#/$defs/Attempt"
+          },
+          "title": "Tried",
+          "type": "array"
+        },
+        "what": {
+          "title": "What",
+          "type": "string"
+        }
+      },
+      "required": [
+        "amount",
+        "bank_ref",
+        "candidates",
+        "confidence",
+        "id",
+        "kind",
+        "needs",
+        "ruled_out",
+        "settlement_id",
+        "threshold",
+        "tried",
+        "what"
+      ],
+      "title": "ExceptionReport",
+      "type": "object"
+    },
+    "GapComponent": {
+      "properties": {
+        "amount": {
+          "title": "Amount",
+          "type": "integer"
+        },
+        "attributed": {
+          "default": true,
+          "title": "Attributed",
+          "type": "boolean"
+        },
+        "check": {
+          "title": "Check",
+          "type": "string"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        },
+        "detail": {
+          "default": "",
+          "title": "Detail",
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/ComponentKind"
+        },
+        "source": {
+          "$ref": "#/$defs/ComponentSource"
+        }
+      },
+      "required": [
+        "amount",
+        "attributed",
+        "check",
+        "confidence",
+        "detail",
+        "kind",
+        "source"
+      ],
+      "title": "GapComponent",
+      "type": "object"
+    },
+    "LlmMode": {
+      "enum": [
+        "stub",
+        "cache",
+        "live",
+        "off"
+      ],
+      "title": "LlmMode",
+      "type": "string"
+    },
+    "MappingMethod": {
+      "enum": [
+        "exact",
+        "alias",
+        "llm"
+      ],
+      "title": "MappingMethod",
+      "type": "string"
+    },
+    "Match": {
+      "properties": {
+        "bank_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bank Ref"
+        },
+        "basis": {
+          "default": "",
+          "title": "Basis",
+          "type": "string"
+        },
+        "candidates_considered": {
+          "default": 0,
+          "title": "Candidates Considered",
+          "type": "integer"
+        },
+        "confidence": {
+          "default": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "origin": {
+          "$ref": "#/$defs/MatchOrigin",
+          "default": "none"
+        },
+        "rejected_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rejected Reason"
+        },
+        "rule": {
+          "$ref": "#/$defs/MatchRule",
+          "default": "none"
+        }
+      },
+      "required": [
+        "bank_ref",
+        "basis",
+        "candidates_considered",
+        "confidence",
+        "origin",
+        "rejected_reason",
+        "rule"
+      ],
+      "title": "Match",
+      "type": "object"
+    },
+    "MatchOrigin": {
+      "enum": [
+        "deterministic",
+        "inference",
+        "none"
+      ],
+      "title": "MatchOrigin",
+      "type": "string"
+    },
+    "MatchRule": {
+      "enum": [
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "none"
+      ],
+      "title": "MatchRule",
+      "type": "string"
+    },
+    "NarrationRead": {
+      "description": "What was read off one bank line, and by what.\n\n``source`` is the point of this record: it distinguishes what a regular expression\ncould see from what a model was needed for, which is how the AI's contribution\nstops being a claim and becomes a number.",
+      "properties": {
+        "confidence": {
+          "default": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "counterparty": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Counterparty"
+        },
+        "kind": {
+          "default": "unknown",
+          "title": "Kind",
+          "type": "string"
+        },
+        "matched_settlement_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Matched Settlement Id"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "raw": {
+          "title": "Raw",
+          "type": "string"
+        },
+        "ref": {
+          "title": "Ref",
+          "type": "string"
+        },
+        "source": {
+          "default": "regex",
+          "title": "Source",
+          "type": "string"
+        },
+        "utrs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Utrs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "confidence",
+        "counterparty",
+        "kind",
+        "matched_settlement_id",
+        "notes",
+        "raw",
+        "ref",
+        "source",
+        "utrs"
+      ],
+      "title": "NarrationRead",
+      "type": "object"
+    },
+    "NormaliseReport": {
+      "properties": {
+        "columns_mapped": {
+          "items": {
+            "$ref": "#/$defs/ColumnMapping"
+          },
+          "title": "Columns Mapped",
+          "type": "array"
+        },
+        "file": {
+          "title": "File",
+          "type": "string"
+        },
+        "rejections": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Rejections",
+          "type": "array"
+        },
+        "rows_read": {
+          "title": "Rows Read",
+          "type": "integer"
+        },
+        "rows_rejected": {
+          "title": "Rows Rejected",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "columns_mapped",
+        "file",
+        "rejections",
+        "rows_read",
+        "rows_rejected"
+      ],
+      "title": "NormaliseReport",
+      "type": "object"
+    },
+    "RuledOut": {
+      "properties": {
+        "check": {
+          "title": "Check",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "check",
+        "reason"
+      ],
+      "title": "RuledOut",
+      "type": "object"
+    },
+    "RunMeta": {
+      "properties": {
+        "data_dir": {
+          "default": "",
+          "title": "Data Dir",
+          "type": "string"
+        },
+        "deterministic_hash": {
+          "default": "",
+          "title": "Deterministic Hash",
+          "type": "string"
+        },
+        "llm_cache_hits": {
+          "default": 0,
+          "title": "Llm Cache Hits",
+          "type": "integer"
+        },
+        "llm_calls": {
+          "default": 0,
+          "title": "Llm Calls",
+          "type": "integer"
+        },
+        "llm_mode": {
+          "$ref": "#/$defs/LlmMode",
+          "default": "off"
+        },
+        "llm_provider": {
+          "default": "none",
+          "title": "Llm Provider",
+          "type": "string"
+        },
+        "run_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Run At"
+        },
+        "runtime_ms": {
+          "default": 0,
+          "title": "Runtime Ms",
+          "type": "integer"
+        },
+        "schema_version": {
+          "default": "1.0.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "seed": {
+          "default": 0,
+          "title": "Seed",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "data_dir",
+        "deterministic_hash",
+        "llm_cache_hits",
+        "llm_calls",
+        "llm_mode",
+        "llm_provider",
+        "run_at",
+        "runtime_ms",
+        "schema_version",
+        "seed"
+      ],
+      "title": "RunMeta",
+      "type": "object"
+    },
+    "Scoreboard": {
+      "properties": {
+        "bank_rows": {
+          "default": 0,
+          "title": "Bank Rows",
+          "type": "integer"
+        },
+        "false_cause_attributions": {
+          "default": 0,
+          "title": "False Cause Attributions",
+          "type": "integer"
+        },
+        "false_matches": {
+          "default": 0,
+          "title": "False Matches",
+          "type": "integer"
+        },
+        "gap_explained": {
+          "default": 0,
+          "title": "Gap Explained",
+          "type": "integer"
+        },
+        "gap_explained_pct": {
+          "default": 0.0,
+          "title": "Gap Explained Pct",
+          "type": "number"
+        },
+        "gap_total": {
+          "default": 0,
+          "title": "Gap Total",
+          "type": "integer"
+        },
+        "gap_unexplained": {
+          "default": 0,
+          "title": "Gap Unexplained",
+          "type": "integer"
+        },
+        "gap_unexplained_pct": {
+          "default": 0.0,
+          "title": "Gap Unexplained Pct",
+          "type": "number"
+        },
+        "matched_deterministic": {
+          "$ref": "#/$defs/Count"
+        },
+        "matched_inference": {
+          "$ref": "#/$defs/Count"
+        },
+        "order_rows": {
+          "default": 0,
+          "title": "Order Rows",
+          "type": "integer"
+        },
+        "records_processed": {
+          "default": 0,
+          "title": "Records Processed",
+          "type": "integer"
+        },
+        "runtime_ms": {
+          "default": 0,
+          "title": "Runtime Ms",
+          "type": "integer"
+        },
+        "settlement_batches": {
+          "default": 0,
+          "title": "Settlement Batches",
+          "type": "integer"
+        },
+        "settlement_rows": {
+          "default": 0,
+          "title": "Settlement Rows",
+          "type": "integer"
+        },
+        "unmatched": {
+          "$ref": "#/$defs/Count"
+        }
+      },
+      "required": [
+        "bank_rows",
+        "false_cause_attributions",
+        "false_matches",
+        "gap_explained",
+        "gap_explained_pct",
+        "gap_total",
+        "gap_unexplained",
+        "gap_unexplained_pct",
+        "matched_deterministic",
+        "matched_inference",
+        "order_rows",
+        "records_processed",
+        "runtime_ms",
+        "settlement_batches",
+        "settlement_rows",
+        "unmatched"
+      ],
+      "title": "Scoreboard",
+      "type": "object"
+    },
+    "TraceEntry": {
+      "description": "One recorded step. Every conclusion traces back to one of these.",
+      "properties": {
+        "action": {
+          "title": "Action",
+          "type": "string"
+        },
+        "detail": {
+          "default": "",
+          "title": "Detail",
+          "type": "string"
+        },
+        "stage": {
+          "title": "Stage",
+          "type": "string"
+        }
+      },
+      "required": [
+        "action",
+        "detail",
+        "stage"
+      ],
+      "title": "TraceEntry",
+      "type": "object"
+    },
+    "UnmatchedBankRow": {
+      "properties": {
+        "credit": {
+          "title": "Credit",
+          "type": "integer"
+        },
+        "date": {
+          "format": "date",
+          "title": "Date",
+          "type": "string"
+        },
+        "narration": {
+          "title": "Narration",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "ref": {
+          "title": "Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "credit",
+        "date",
+        "narration",
+        "reason",
+        "ref"
+      ],
+      "title": "UnmatchedBankRow",
+      "type": "object"
+    },
+    "Verdict": {
+      "enum": [
+        "correct",
+        "missed",
+        "over_attributed",
+        "false_cause"
+      ],
+      "title": "Verdict",
+      "type": "string"
+    }
+  },
+  "properties": {
+    "batches": {
+      "items": {
+        "$ref": "#/$defs/BatchReport"
+      },
+      "title": "Batches",
+      "type": "array"
+    },
+    "evaluation": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EvalReport"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "exceptions": {
+      "items": {
+        "$ref": "#/$defs/ExceptionReport"
+      },
+      "title": "Exceptions",
+      "type": "array"
+    },
+    "meta": {
+      "$ref": "#/$defs/RunMeta"
+    },
+    "narrations": {
+      "items": {
+        "$ref": "#/$defs/NarrationRead"
+      },
+      "title": "Narrations",
+      "type": "array"
+    },
+    "normalise": {
+      "items": {
+        "$ref": "#/$defs/NormaliseReport"
+      },
+      "title": "Normalise",
+      "type": "array"
+    },
+    "scoreboard": {
+      "$ref": "#/$defs/Scoreboard"
+    },
+    "unmatched_bank_rows": {
+      "items": {
+        "$ref": "#/$defs/UnmatchedBankRow"
+      },
+      "title": "Unmatched Bank Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "batches",
+    "evaluation",
+    "exceptions",
+    "meta",
+    "narrations",
+    "normalise",
+    "scoreboard",
+    "unmatched_bank_rows"
+  ],
+  "title": "Report",
+  "type": "object"
+}

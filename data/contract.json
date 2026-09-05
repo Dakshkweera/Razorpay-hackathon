@@ -1,0 +1,12 @@
+{
+  "merchant_id": "acct_MERCH9KP2",
+  "gst_bps": 1800,
+  "mdr_schedule": [
+    {
+      "effective_from": "2026-01-01",
+      "effective_to": "2026-12-31",
+      "mdr_bps": 80,
+      "label": "Standard domestic MDR, calendar year 2026"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+[project]
+name = "settlement-explainer"
+version = "0.1.0"
+description = "Razorpay settlement reconciliation with a measured, provable accuracy scoreboard"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.9",
+    "fastapi>=0.115",
+    "uvicorn>=0.32",
+    "httpx>=0.27",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.3"]
+
+[project.scripts]
+recon = "recon.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["recon"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

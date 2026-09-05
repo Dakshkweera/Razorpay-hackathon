@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+/* A reconciliation tool is read, not admired. Muted ground, high-contrast figures,
+   colour reserved for status so that a red cell always means something. */
+@theme {
+  --color-ground: #fbfbfa;
+  --color-surface: #ffffff;
+  --color-line: #e7e5e1;
+  --color-line-strong: #d4d1cb;
+  --color-ink: #1b1a18;
+  --color-ink-soft: #55524c;
+  --color-ink-faint: #8a867e;
+
+  --color-ok: #0f7b46;
+  --color-ok-soft: #e8f4ed;
+  --color-warn: #9a6700;
+  --color-warn-soft: #fdf5e3;
+  --color-bad: #b42318;
+  --color-bad-soft: #fdeceb;
+  --color-info: #2c5d9b;
+  --color-info-soft: #eaf0f8;
+
+  --font-mono: "SF Mono", "Cascadia Mono", "JetBrains Mono", Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  @theme {
+    --color-ground: #16151a;
+    --color-surface: #1d1c21;
+    --color-line: #2e2c33;
+    --color-line-strong: #3d3a43;
+    --color-ink: #f0eeeb;
+    --color-ink-soft: #b3afa8;
+    --color-ink-faint: #7d7973;
+
+    --color-ok: #4ec98a;
+    --color-ok-soft: #11291d;
+    --color-warn: #e0a940;
+    --color-warn-soft: #2a2113;
+    --color-bad: #f27a70;
+    --color-bad-soft: #2c1614;
+    --color-info: #7aa8e0;
+    --color-info-soft: #16202e;
+  }
+}
+
+html {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  background: var(--color-ground);
+  color: var(--color-ink);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Every figure in this app is money or a count. Columns must line up. */
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}

@@ -1,0 +1,23 @@
+{
+  "NEFT CR RAZORPAY SOFTWARE PVT LTD SETTLEMENT": {
+    "confidence": 0.5,
+    "counterparty": "razorpay",
+    "key": "NEFT CR RAZORPAY SOFTWARE PVT LTD SETTLEMENT",
+    "kind": "settlement",
+    "utr": null
+  },
+  "NEFT CR-RATN0000088-RAZORPAY SOFTWARE PVT LTD-SETL_D4P2-REF4O29I4II####": {
+    "confidence": 0.3,
+    "counterparty": "razorpay",
+    "key": "NEFT CR-RATN0000088-RAZORPAY SOFTWARE PVT LTD-SETL_D4P2-REF4O29I4II####",
+    "kind": "settlement",
+    "utr": null
+  },
+  "NEFT-RZPY-4O29I433#### STTL/CR": {
+    "confidence": 0.3,
+    "counterparty": "razorpay",
+    "key": "NEFT-RZPY-4O29I433#### STTL/CR",
+    "kind": "settlement",
+    "utr": null
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "recon",
+      "runtimeExecutable": ".venv/Scripts/python.exe",
+      "runtimeArgs": ["-m", "recon.cli", "serve", "--port", "8010"],
+      "port": 8010,
+      "autoPort": false
+    }
+  ]
+}

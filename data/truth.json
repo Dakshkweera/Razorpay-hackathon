@@ -1,0 +1,437 @@
+{
+  "seed": 42,
+  "contract_file": "contract.json",
+  "settlement_rows": 275,
+  "order_rows": 256,
+  "bank_rows": 14,
+  "total_expected_gap": 1666731,
+  "total_detectable": 1486731,
+  "total_undetectable": 180000,
+  "batches": [
+    {
+      "settlement_id": "setl_A1F3",
+      "utr": "402913847562",
+      "settled_at": "2026-08-03T11:02:00Z",
+      "window_start": "2026-07-31",
+      "window_end": "2026-08-02",
+      "gross_settled": 13620200,
+      "total_fee": 108963,
+      "total_tax": 19612,
+      "orders_expected": 13620200,
+      "bank_ref": "N0001",
+      "bank_credit": 13491625,
+      "expected_gap": 128575,
+      "components": [
+        {
+          "kind": "fee",
+          "amount": 108963,
+          "detectable": true,
+          "note": "0.80% of settled payments, per contract"
+        },
+        {
+          "kind": "gst_on_fee",
+          "amount": 19612,
+          "detectable": true,
+          "note": "18% GST on fees charged"
+        }
+      ],
+      "expected_rule": "R1",
+      "expected_outcome": "Clean batch. UTR present and readable; nothing but fees and GST to explain.",
+      "cases": [
+        1
+      ]
+    },
+    {
+      "settlement_id": "setl_B2K7",
+      "utr": "402913847999",
+      "settled_at": "2026-08-05T11:02:00Z",
+      "window_start": "2026-08-03",
+      "window_end": "2026-08-04",
+      "gross_settled": 14152200,
+      "total_fee": 124557,
+      "total_tax": 22419,
+      "orders_expected": 14152200,
+      "bank_ref": "N0003",
+      "bank_credit": 14005200,
+      "expected_gap": 147000,
+      "components": [
+        {
+          "kind": "fee",
+          "amount": 124557,
+          "detectable": true,
+          "note": "0.80% of settled payments, per contract"
+        },
+        {
+          "kind": "gst_on_fee",
+          "amount": 22419,
+          "detectable": true,
+          "note": "18% GST on fees charged"
+        },
+        {
+          "kind": "rounding",
+          "amount": 24,
+          "detectable": true,
+          "note": "payout truncated to whole rupees by the remitting bank"
+        }
+      ],
+      "expected_rule": "R1",
+      "expected_outcome": "Fees, GST and a sub-rupee payout truncation. A duplicate bank posting repeats this UTR and must be flagged rather than counted twice.",
+      "cases": [
+        2,
+        7
+      ]
+    },
+    {
+      "settlement_id": "setl_C3M9",
+      "utr": "402914001233",
+      "settled_at": "2026-08-06T11:02:00Z",
+      "window_start": "2026-08-05",
+      "window_end": "2026-08-05",
+      "gross_settled": 10974500,
+      "total_fee": 97655,
+      "total_tax": 17577,
+      "orders_expected": 10974500,
+      "bank_ref": "N0006",
+      "bank_credit": 10464568,
+      "expected_gap": 509932,
+      "components": [
+        {
+          "kind": "fee",
+          "amount": 97655,
+          "detectable": true,
+          "note": "0.80% of settled payments, per contract"
+        },
+        {
+          "kind": "gst_on_fee",
+          "amount": 17577,
+          "detectable": true,
+          "note": "18% GST on fees charged"
+        },
+        {
+          "kind": "cross_cycle_refund",
+          "amount": 394700,
+          "detectable": true,
+          "note": "deducted here, documented in the next cycle"
+        }
+      ],
+      "expected_rule": "R1",
+      "expected_outcome": "Short by a refund that belongs in this window but was documented in the next cycle's report.",
+      "cases": [
+        3
+      ]
+    },
+    {
+      "settlement_id": "setl_D4P2",
+      "utr": "402914118876",
+      "settled_at": "2026-08-07T11:02:00Z",
+      "window_start": "2026-08-06",
+      "window_end": "2026-08-06",
+      "gross_settled": 11915900,
+      "total_fee": 112984,
+      "total_tax": 20341,
+      "orders_expected": 12147300,
+      "bank_ref": "N0007",
+      "bank_credit": 12177275,
+      "expected_gap": -29975,
+      "components": [
+        {
+          "kind": "fee",
+          "amount": 112984,
+          "detectable": true,
+          "note": "0.80% of settled payments, per contract"
+        },
+        {
+          "kind": "gst_on_fee",
+          "amount": 20341,
+          "detectable": true,
+          "note": "18% GST on fees charged"
+        },
+        {
+          "kind": "unlinked_adjustment",
+          "amount": 231400,
+          "detectable": true,
+          "note": "adjustment rows with no order to link against"
+        },
+        {
+          "kind": "cross_cycle_refund",
+          "amount": -394700,
+          "detectable": true,
+          "note": "documented here, already deducted in the previous cycle"
+        }
+      ],
+      "expected_rule": "R2",
+      "expected_outcome": "Carries the previous cycle's refund row. Its UTR is corrupted in the narration but the settlement id is printed verbatim, so R2 should fire.",
+      "cases": [
+        3
+      ]
+    },
+    {
+      "settlement_id": "setl_E5R8",
+      "utr": "402914203451",
+      "settled_at": "2026-08-10T11:02:00Z",
+      "window_start": "2026-08-07",
+      "window_end": "2026-08-09",
+      "gross_settled": 16459900,
+      "total_fee": 221141,
+      "total_tax": 39808,
+      "orders_expected": 16627500,
+      "bank_ref": "N0008",
+      "bank_credit": 16018951,
+      "expected_gap": 608549,
+      "components": [
+        {
+          "kind": "fee",
+          "amount": 147435,
+          "detectable": true,
+          "note": "0.80% of settled payments, per contract"
+        },
+        {
+          "kind": "fee_rate_drift",
+          "amount": 73706,
+          "detectable": true,
+          "note": "charged at 1.20% against a contracted 0.80%"
+        },
+        {
+          "kind": "gst_on_fee",
+          "amount": 39808,
+          "detectable": true,
+          "note": "18% GST on fees charged"
+        },
+        {
+          "kind": "unlinked_adjustment",
+          "amount": 167600,
+          "detectable": true,
+          "note": "adjustment rows with no order to link against"
+        },
+        {
+          "kind": "unexplained",
+          "amount": 180000,
+          "detectable": false,
+          "note": "no cause exists in any of the three files - the correct output is an exception, not an explanation"
+        }
+      ],
+      "expected_rule": "R1",
+      "expected_outcome": "The demo batch. Fee charged at 1.20% against a contracted 0.80%, an unlinked adjustment, and Rs 1,800 that nothing in any of the three files accounts for.",
+      "cases": [
+        4,
+        10
+      ]
+    },
+    {
+      "settlement_id": "setl_F6T1",
+      "utr": "402914330098",
+      "settled_at": "2026-08-12T11:02:00Z",
+      "window_start": "2026-08-10",
+      "window_end": "2026-08-11",
+      "gross_settled": 9438200,
+      "total_fee": 80538,
+      "total_tax": 14498,
+      "orders_expected": 9438200,
+      "bank_ref": "N0012",
+      "bank_credit": 9343164,
+      "expected_gap": 95036,
+      "components": [
+        {
+          "kind": "fee",
+          "amount": 80538,
+          "detectable": true,
+          "note": "0.80% of settled payments, per contract"
+        },
+        {
+          "kind": "gst_on_fee",
+          "amount": 14498,
+          "detectable": true,
+          "note": "18% GST on fees charged"
+        }
+      ],
+      "expected_rule": "R4",
+      "expected_outcome": "Narration mangled past the point where the UTR can be read, and the bank posted a day late. Only amount-within-two-days can reach it, so this batch is deliberately left free of any other discrepancy - a shifted credit would put it out of reach of every rule.",
+      "cases": [
+        5
+      ]
+    },
+    {
+      "settlement_id": "setl_G7V4",
+      "utr": "402914455512",
+      "settled_at": "2026-08-13T11:02:00Z",
+      "window_start": "2026-08-12",
+      "window_end": "2026-08-12",
+      "gross_settled": 10743300,
+      "total_fee": 87974,
+      "total_tax": 15833,
+      "orders_expected": 10743300,
+      "bank_ref": "N0013",
+      "bank_credit": 10639493,
+      "expected_gap": 103807,
+      "components": [
+        {
+          "kind": "fee",
+          "amount": 87974,
+          "detectable": true,
+          "note": "0.80% of settled payments, per contract"
+        },
+        {
+          "kind": "gst_on_fee",
+          "amount": 15833,
+          "detectable": true,
+          "note": "18% GST on fees charged"
+        }
+      ],
+      "expected_rule": null,
+      "expected_outcome": "Identical net amount and date to setl_H8X6, and neither bank line carries an identifier. Two candidates is not a match.",
+      "cases": [
+        6
+      ]
+    },
+    {
+      "settlement_id": "setl_H8X6",
+      "utr": "402914455513",
+      "settled_at": "2026-08-13T11:02:00Z",
+      "window_start": "2026-08-12",
+      "window_end": "2026-08-12",
+      "gross_settled": 10743300,
+      "total_fee": 87974,
+      "total_tax": 15833,
+      "orders_expected": 10743300,
+      "bank_ref": "N0014",
+      "bank_credit": 10639493,
+      "expected_gap": 103807,
+      "components": [
+        {
+          "kind": "fee",
+          "amount": 87974,
+          "detectable": true,
+          "note": "0.80% of settled payments, per contract"
+        },
+        {
+          "kind": "gst_on_fee",
+          "amount": 15833,
+          "detectable": true,
+          "note": "18% GST on fees charged"
+        }
+      ],
+      "expected_rule": null,
+      "expected_outcome": "The twin of setl_G7V4.",
+      "cases": [
+        6
+      ]
+    },
+    {
+      "settlement_id": "setl_J9Z0",
+      "utr": "402914502277",
+      "settled_at": "2026-08-14T11:02:00Z",
+      "window_start": "2026-08-13",
+      "window_end": "2026-08-13",
+      "gross_settled": 10464700,
+      "total_fee": 95572,
+      "total_tax": 17203,
+      "orders_expected": 10464700,
+      "bank_ref": null,
+      "bank_credit": null,
+      "expected_gap": null,
+      "components": [],
+      "expected_rule": null,
+      "expected_outcome": "Settled but never credited within the statement period. Almost certainly timing, but the system is not entitled to assume that.",
+      "cases": [
+        9
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "number": 1,
+      "name": "Clean batch, UTR matches",
+      "expected": "matched by R1, residual 0",
+      "settlement_ids": [
+        "setl_A1F3"
+      ],
+      "bank_refs": []
+    },
+    {
+      "number": 2,
+      "name": "Fees and GST only",
+      "expected": "gap fully decomposed, residual 0",
+      "settlement_ids": [
+        "setl_B2K7"
+      ],
+      "bank_refs": []
+    },
+    {
+      "number": 3,
+      "name": "Refund settled in next cycle",
+      "expected": "found by adjacent-cycle search, both ends resolved",
+      "settlement_ids": [
+        "setl_C3M9",
+        "setl_D4P2"
+      ],
+      "bank_refs": []
+    },
+    {
+      "number": 4,
+      "name": "Fee charged at 1.2% vs contracted 0.8%",
+      "expected": "flagged as fee_rate_drift",
+      "settlement_ids": [
+        "setl_E5R8"
+      ],
+      "bank_refs": []
+    },
+    {
+      "number": 5,
+      "name": "Garbled narration, UTR unreadable",
+      "expected": "matched on amount within +/-2 days, lower confidence",
+      "settlement_ids": [
+        "setl_F6T1"
+      ],
+      "bank_refs": []
+    },
+    {
+      "number": 6,
+      "name": "Two batches, identical amount, same day",
+      "expected": "ambiguous - exception, not a guess",
+      "settlement_ids": [
+        "setl_G7V4",
+        "setl_H8X6"
+      ],
+      "bank_refs": []
+    },
+    {
+      "number": 7,
+      "name": "Duplicate UTR across two bank lines",
+      "expected": "flagged, not double-counted",
+      "settlement_ids": [
+        "setl_B2K7"
+      ],
+      "bank_refs": [
+        "N0003",
+        "N0004"
+      ]
+    },
+    {
+      "number": 8,
+      "name": "Bank credit with no settlement at all",
+      "expected": "exception",
+      "settlement_ids": [],
+      "bank_refs": [
+        "N0010"
+      ]
+    },
+    {
+      "number": 9,
+      "name": "Settlement with no bank credit",
+      "expected": "exception, marked likely timing",
+      "settlement_ids": [
+        "setl_J9Z0"
+      ],
+      "bank_refs": []
+    },
+    {
+      "number": 10,
+      "name": "Genuinely unexplainable Rs 1,800",
+      "expected": "exception, no invented cause",
+      "settlement_ids": [
+        "setl_E5R8"
+      ],
+      "bank_refs": []
+    }
+  ]
+}

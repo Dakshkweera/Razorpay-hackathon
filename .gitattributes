@@ -1,0 +1,7 @@
+# Determinism depends on bytes. `recon verify` regenerates the CSVs from the seed and
+# compares them to what is on disk, so a checkout that rewrites line endings would fail
+# that check on any machine configured differently from the one that committed.
+* text=auto eol=lf
+
+*.csv text eol=lf
+*.json text eol=lf
