@@ -4,8 +4,8 @@
     {
       "name": "recon",
       "runtimeExecutable": ".venv/Scripts/python.exe",
-      "runtimeArgs": ["-m", "recon.cli", "serve", "--port", "8010"],
-      "port": 8010,
+      "runtimeArgs": ["-m", "recon.cli", "serve", "--port", "8020"],
+      "port": 8020,
       "autoPort": false
     }
   ]

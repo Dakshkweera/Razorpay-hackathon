@@ -5,8 +5,8 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
-    // The engine owns /api; in dev it runs on 8000 while Vite serves the page.
-    proxy: { "/api": { target: "http://127.0.0.1:8010", changeOrigin: true } },
+    // The engine owns /api; in dev it runs on 8020 while Vite serves the page.
+    proxy: { "/api": { target: "http://127.0.0.1:8020", changeOrigin: true } },
   },
   build: { outDir: "dist", emptyOutDir: true },
 });

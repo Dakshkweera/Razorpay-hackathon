@@ -340,7 +340,7 @@ def main(argv: list[str] | None = None) -> int:
     serve.add_argument("--report", default=str(DEFAULT_REPORT))
     serve.add_argument("--llm", choices=_LLM_CHOICES, default=None)
     serve.add_argument("--host", default="127.0.0.1")
-    serve.add_argument("--port", type=int, default=int(os.environ.get("PORT", "8010")))
+    serve.add_argument("--port", type=int, default=int(os.environ.get("PORT", "8020")))
     serve.set_defaults(func=cmd_serve)
 
     args = parser.parse_args(argv)
