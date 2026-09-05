@@ -115,7 +115,7 @@ This writes `data/settlements.csv`, `data/orders.csv`, `data/bank.csv` **and** `
 
 ## Demo Video
 
-_Recording goes here — paste the link once captured (a GitHub `user-attachments` upload, Drive, or YouTube all work)._
+https://github.com/user-attachments/assets/bd162a70-a375-4ed3-ac9c-f3ddf75b4462
 
 ---
 
