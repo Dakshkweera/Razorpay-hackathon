@@ -31,6 +31,8 @@ from recon.report import (
     EvalComponent,
     EvalReport,
     ExceptionKind,
+    MappingMethod,
+    MatchOrigin,
     MatchRule,
     Report,
     Verdict,
@@ -216,14 +218,25 @@ def _score_cases(report: Report, truth: Truth) -> list[EvalCase]:
                 )
 
         elif number == 5:
+            # With the AI layer engaged (the normal way this system runs), the model
+            # reads past the lookalike-glyph corruption and recovers the reference in
+            # full - R1, credited as inference rather than a rule. With the model
+            # switched off entirely there is nothing to recover it with, and R4
+            # (amount within two days) is the correct fallback: still a pass, because
+            # the honest behaviour with no model available is not a failure.
             batch = batches[case.settlement_ids[0]]
-            ok = batch.match.rule in (MatchRule.R3, MatchRule.R4) and batch.match.confidence < 1.0
+            via_inference = (
+                batch.match.rule is MatchRule.R1 and batch.match.origin is MatchOrigin.INFERENCE
+            )
+            via_fallback = batch.match.rule is MatchRule.R4
+            ok = via_inference or via_fallback
             add(
                 number,
                 name,
                 expected,
                 CaseStatus.PASS if ok else CaseStatus.FAIL,
-                f"matched by {batch.match.rule.value} at confidence {batch.match.confidence:.2f}",
+                f"matched by {batch.match.rule.value} "
+                f"({batch.match.origin.value}) at confidence {batch.match.confidence:.2f}",
             )
 
         elif number == 6:
@@ -329,6 +342,36 @@ def _score_cases(report: Report, truth: Truth) -> list[EvalCase]:
                     expected,
                     CaseStatus.PASS if ok else CaseStatus.FAIL,
                     f"{int(batch.residual)} paise left unexplained, {len(invented)} causes invented",
+                )
+
+        elif number == 11:
+            bank_report = next(
+                (n for n in report.normalise if n.file == "bank.csv"), None
+            )
+            if bank_report is None:
+                add(number, name, expected, CaseStatus.FAIL, "bank.csv was not ingested")
+            else:
+                mapped = {m.source: m for m in bank_report.columns_mapped}
+                alias_ok = (
+                    "particulars" in mapped
+                    and mapped["particulars"].canonical == "narration"
+                    and mapped["particulars"].method == MappingMethod.ALIAS
+                )
+                llm_ok = (
+                    "reference_no" in mapped
+                    and mapped["reference_no"].canonical == "ref"
+                    and mapped["reference_no"].method == MappingMethod.LLM
+                )
+                all_parsed = bank_report.rows_rejected == 0
+                ok = alias_ok and llm_ok and all_parsed
+                add(
+                    number,
+                    name,
+                    expected,
+                    CaseStatus.PASS if ok else CaseStatus.FAIL,
+                    f"particulars via {mapped.get('particulars').method.value if 'particulars' in mapped else 'unresolved'}, "
+                    f"reference_no via {mapped.get('reference_no').method.value if 'reference_no' in mapped else 'unresolved'}, "
+                    f"{bank_report.rows_rejected} of {bank_report.rows_read} rows rejected",
                 )
 
     return results

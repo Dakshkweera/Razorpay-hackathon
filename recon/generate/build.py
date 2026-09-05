@@ -43,8 +43,28 @@ def _token(rng: random.Random, length: int = 10) -> str:
     return "".join(rng.choice(_ALPHABET) for _ in range(length))
 
 
-def _garble(utr: str) -> str:
-    """Corrupt a UTR the way a bad statement export does: lookalike glyphs, lost tail."""
+def _garble_recoverable(utr: str) -> str:
+    """Corrupt a UTR with lookalike glyphs only - readable by something that looks past them.
+
+    No digits are deleted. A masked digit is gone for good, recoverable by nothing; a
+    glyph-substituted one is, in principle, recoverable by a reader that recognises
+    O/I/S as look-alikes for 0/1/5. The plain regex still fails here, because a run of
+    digits broken up by letters is no longer a run of digits - which is exactly the
+    gap stage 2's LLM exists to close. Used on the one batch where recovering the
+    reference is the point (case 5).
+    """
+    return utr.translate(str.maketrans({"0": "O", "1": "I", "5": "S"}))
+
+
+def _garble_unreadable(utr: str) -> str:
+    """Corrupt a UTR past what any reader - human, regex, or model - could recover.
+
+    Lookalike glyphs plus a truncated tail. Used wherever a batch's UTR must stay
+    genuinely unreadable so a *different* rule is the only route to a match - the
+    cross-cycle batch (case 3) is matched by its settlement id being printed
+    verbatim (R2), and that test is void if its UTR were recoverable well enough for
+    R1 to fire first.
+    """
     swapped = utr.translate(str.maketrans({"0": "O", "1": "I", "5": "S"}))
     return swapped[:-4] + "####"
 
@@ -393,10 +413,15 @@ def build(seed: int = 42) -> GeneratedData:
                     f"but the gap is {gap}"
                 )
             day = (spec.settled_at + timedelta(days=spec.bank_lag_days)).date()
+            garble = (
+                _garble_recoverable
+                if spec.narration_style == "garbled"
+                else _garble_unreadable
+            )
             narration = NARRATION_STYLES[spec.narration_style].format(
                 utr=spec.utr,
                 settlement_id=spec.settlement_id,
-                utr_garbled=_garble(spec.utr),
+                utr_garbled=garble(spec.utr),
             )
             bank_drafts.append((day, narration, 0, credit, spec.settlement_id))
             if 7 in spec.cases:  # noqa: PLR2004 - the PRD's case number, not a magic value
@@ -480,7 +505,11 @@ def _expected_rule(spec: BatchSpec) -> str | None:
     if spec.narration_style == "with_settlement_id":
         return "R2"
     if spec.narration_style == "garbled":
-        return "R4" if spec.bank_lag_days else "R3"
+        # Recoverable-by-design (see _garble_recoverable): with any LLM tier engaged
+        # (stub, cache or live - i.e. every mode except the explicit "off"), the
+        # reference comes back in full and R1 fires, credited as inference. Only with
+        # the model switched off entirely does this fall back to amount-and-date.
+        return "R1"
     return "R1"
 
 

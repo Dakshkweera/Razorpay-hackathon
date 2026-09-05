@@ -65,20 +65,25 @@ def test_the_baseline_is_below_a_hundred_percent(report):
     assert 0 < report.scoreboard.matched_deterministic.pct < 100
 
 
-def test_zero_ai_baseline_is_recorded(report):
-    """The number stage 3 alone reaches. Update deliberately.
+def test_the_ai_delta_over_the_zero_ai_baseline_is_recorded(report):
+    """The number the LLM stages are measured against, and what they add. Update
+    deliberately.
 
-    This fixture runs with the LLM stub active (see the ``report`` fixture above),
-    and the count still comes out identical to the no-AI baseline: every corrupted
-    reference in this dataset is corrupted past what an honest model can recover
-    (see ``test_a_mangled_reference_is_not_invented``), so nothing here should be
-    matched by inference. If this assertion ever needs to change because a real
-    inference match legitimately appears, that is the AI delta this project exists
-    to measure - change it deliberately, with a reason.
+    Stage 3 alone (rules only, no model) reaches 5 of 9 batches. One more - setl_F6T1,
+    whose reference is corrupted with lookalike glyphs rather than deleted digits -
+    is reachable only by a reader that can look past the substitution, and is credited
+    as inference rather than folded into the deterministic count. That one batch is
+    the entire measured contribution of the AI layer to matching on this dataset; if
+    this assertion needs to change, that delta has changed, and it should be changed
+    with a reason, not silently.
     """
-    assert report.scoreboard.matched_deterministic.n == 6
-    assert report.scoreboard.matched_inference.n == 0
+    assert report.scoreboard.matched_deterministic.n == 5
+    assert report.scoreboard.matched_inference.n == 1
     assert report.scoreboard.unmatched.n == 3
+
+    inferred = [batch for batch in report.batches if batch.match.origin is MatchOrigin.INFERENCE]
+    assert [batch.settlement_id for batch in inferred] == ["setl_F6T1"]
+    assert inferred[0].match.rule is MatchRule.R1
 
 
 # --------------------------------------------------------------------------- #
@@ -123,11 +128,22 @@ def test_matched_batches_carry_the_credit_they_matched(report):
             assert int(batch.headline_gap) == int(batch.orders_expected) - int(batch.bank_credit)
 
 
-def test_all_matches_are_deterministic_on_this_dataset(report):
-    """See ``test_zero_ai_baseline_is_recorded``: the LLM stub is active here too."""
+def test_only_the_recovered_reference_is_credited_as_inference(report):
+    """See ``test_the_ai_delta_over_the_zero_ai_baseline_is_recorded``.
+
+    Every other committed match must stand on the deterministic floor alone - crediting
+    the model for a match a plain rule already reached with certainty would overstate
+    what the AI actually contributed.
+    """
     for batch in report.batches:
-        if batch.match.rule is not MatchRule.NONE:
-            assert batch.match.origin is MatchOrigin.DETERMINISTIC
+        if batch.match.rule is MatchRule.NONE:
+            continue
+        expected_origin = (
+            MatchOrigin.INFERENCE
+            if batch.settlement_id == "setl_F6T1"
+            else MatchOrigin.DETERMINISTIC
+        )
+        assert batch.match.origin is expected_origin, batch.settlement_id
 
 
 # --------------------------------------------------------------------------- #
@@ -244,3 +260,25 @@ def test_counterparty_is_identified_where_it_can_be():
         extract(_bank_row("NEFT CR-ICIC0000455-STRIPE PAYMENTS INDIA-UTR911002345678")).counterparty
         == "stripe"
     )
+
+
+# --------------------------------------------------------------------------- #
+# Inference recovery
+# --------------------------------------------------------------------------- #
+
+def test_the_regex_alone_cannot_read_the_glyph_corrupted_reference():
+    """The floor the AI delta is measured against: a digit run broken up by letters
+    is no longer a digit run, so the deterministic reader finds nothing here."""
+    read = extract(_bank_row("NEFT-RZPY-4O29I433OO98 STTL/CR"))
+    assert read.utrs == ()
+
+
+def test_the_stub_recovers_it_by_reversing_the_exact_substitution():
+    from recon.llm.stub import StubProvider
+    from recon.narration.cache import NarrationCache
+    from recon.narration.extract import extract_all_llm
+
+    row = _bank_row("NEFT-RZPY-4O29I433OO98 STTL/CR")
+    merged = extract_all_llm([row], StubProvider(), NarrationCache())
+    assert merged[row.ref].all_utrs == ("402914330098",)
+    assert merged[row.ref].utr_source("402914330098") == "llm"

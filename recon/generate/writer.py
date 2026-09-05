@@ -38,6 +38,17 @@ ORDER_COLUMNS = (
 )
 BANK_COLUMNS = ("date", "narration", "debit", "credit", "balance", "ref")
 
+#: Two of the bank statement's own headers are deliberately exported under the names a
+#: real Indian bank export uses instead of the canonical ones - this is stage 1's
+#: "schema drift across sources" claim, exercised on real bytes rather than left as an
+#: untested capability. "particulars" resolves through the alias table (free,
+#: deterministic); "reference_no" is not in that table at all and only resolves
+#: through the LLM tier, because "exhaustive is what the LLM tier is for."
+BANK_HEADER_OVERRIDES: dict[str, str] = {
+    "narration": "particulars",
+    "ref": "reference_no",
+}
+
 
 def _iso(moment: datetime) -> str:
     return moment.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -94,8 +105,9 @@ def render_orders(rows: list[OrderRow]) -> str:
 
 
 def render_bank(rows: list[BankRow]) -> str:
+    header = tuple(BANK_HEADER_OVERRIDES.get(column, column) for column in BANK_COLUMNS)
     return _render_csv(
-        BANK_COLUMNS,
+        header,
         [
             [
                 row.date.isoformat(),

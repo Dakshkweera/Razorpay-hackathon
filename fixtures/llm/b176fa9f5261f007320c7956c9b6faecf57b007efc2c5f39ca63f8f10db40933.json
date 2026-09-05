@@ -1,0 +1,9 @@
+{
+  "mappings": [
+    {
+      "canonical": "ref",
+      "confidence": 0.98,
+      "source": "reference_no"
+    }
+  ]
+}

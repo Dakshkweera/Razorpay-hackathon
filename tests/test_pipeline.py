@@ -10,6 +10,7 @@ import pytest
 
 from recon.generate.build import build
 from recon.generate.writer import write_dataset
+from recon.llm.stub import StubProvider
 from recon.pipeline import assemble_batches, load, run
 from recon.report import LlmMode
 from recon.truth import Truth
@@ -34,7 +35,7 @@ def truth(data_dir) -> Truth:
 
 
 def test_every_row_survives_the_round_trip(data_dir, truth):
-    inputs = load(data_dir)
+    inputs = load(data_dir, provider=StubProvider())
     assert len(inputs.settlements) == truth.settlement_rows
     assert len(inputs.orders) == truth.order_rows
     assert len(inputs.bank) == truth.bank_rows
@@ -42,7 +43,7 @@ def test_every_row_survives_the_round_trip(data_dir, truth):
 
 
 def test_batch_totals_agree_with_the_planted_truth(data_dir, truth):
-    computed = {batch.settlement_id: batch for batch in assemble_batches(load(data_dir))}
+    computed = {batch.settlement_id: batch for batch in assemble_batches(load(data_dir, provider=StubProvider()))}
     assert set(computed) == {batch.settlement_id for batch in truth.batches}
 
     for planted in truth.batches:
@@ -54,7 +55,7 @@ def test_batch_totals_agree_with_the_planted_truth(data_dir, truth):
 
 
 def test_inferred_windows_match_the_windows_the_generator_used(data_dir, truth):
-    computed = {batch.settlement_id: batch for batch in assemble_batches(load(data_dir))}
+    computed = {batch.settlement_id: batch for batch in assemble_batches(load(data_dir, provider=StubProvider()))}
     for planted in truth.batches:
         actual = computed[planted.settlement_id]
         assert actual.window_start >= planted.window_start

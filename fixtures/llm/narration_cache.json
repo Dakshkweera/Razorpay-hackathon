@@ -19,5 +19,12 @@
     "key": "NEFT-RZPY-4O29I433#### STTL/CR",
     "kind": "payment_gateway_settlement",
     "utr": null
+  },
+  "NEFT-RZPY-4O29I433OO98 STTL/CR": {
+    "confidence": 0.75,
+    "counterparty": "razorpay",
+    "key": "NEFT-RZPY-4O29I433OO98 STTL/CR",
+    "kind": "settlement",
+    "utr": "402914330098"
   }
 }

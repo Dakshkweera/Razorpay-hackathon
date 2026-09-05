@@ -69,9 +69,13 @@ def test_gst_is_exactly_the_contracted_percentage_of_fee(data):
             assert int(row.tax) == int(mul_rate(row.fee, GST_BPS)), row.payment_id
 
 
-def test_all_ten_cases_are_planted_and_located(truth):
-    assert len(truth.cases) == len(CASE_TABLE)
+def test_all_planted_cases_are_located(truth):
+    assert len(truth.cases) == len(CASE_TABLE) == 11
     for case in truth.cases:
+        # Case 11 is a fact about the bank file's header row, not about any one
+        # settlement or bank line - there is nothing for it to point at.
+        if case.number == 11:
+            continue
         assert case.settlement_ids or case.bank_refs, f"case {case.number} points at nothing"
 
 
@@ -123,15 +127,26 @@ def test_case_4_fee_rate_drift_is_the_excess_over_the_contracted_rate(data, batc
     assert int(drift.amount) > 0
 
 
-def test_case_5_garbled_narration_hides_the_utr_but_the_amount_still_reaches_it(data, batches):
+def test_case_5_narration_is_glyph_corrupted_but_fully_recoverable(data, batches):
+    """The UTR is masked with lookalike glyphs, not deleted digits.
+
+    A regex sees a run of digits broken up by letters and finds nothing - but nothing
+    was actually lost. Reversing the exact three substitutions the generator applied
+    (O/I/S back to 0/1/5) recovers the real UTR byte for byte, which is what lets a
+    model - and the offline stub, which implements the same reversal - match this
+    batch by R1 instead of falling back to amount and date.
+    """
     batch = batches["setl_F6T1"]
     line = next(row for row in data.bank if int(row.credit) == int(batch.bank_credit))
-    assert batch.utr not in line.narration, "a readable UTR would make this case trivial"
-    assert "#" in line.narration
-    # Nothing else may disturb this batch's credit, or no amount rule could reach it.
+    assert batch.utr not in line.narration, "a directly readable UTR would make this trivial"
+    recovered = line.narration.translate(str.maketrans({"O": "0", "I": "1", "S": "5"}))
+    assert batch.utr in recovered, "reversing the substitution must recover the exact UTR"
+
+    # The safety net: if the AI layer is off entirely, amount-and-date must still reach
+    # this batch, so nothing else may disturb its credit and it must post late.
     implied = int(batch.gross_settled) - int(batch.total_fee) - int(batch.total_tax)
     assert implied == int(batch.bank_credit)
-    assert line.date > batch.settled_at.date(), "posted late, so only the +/-2 day rule fits"
+    assert line.date > batch.settled_at.date(), "posted late, so R4 is the fallback route"
 
 
 def test_case_6_twins_are_genuinely_indistinguishable(data, batches):

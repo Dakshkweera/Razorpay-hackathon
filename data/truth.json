@@ -244,8 +244,8 @@
           "note": "18% GST on fees charged"
         }
       ],
-      "expected_rule": "R4",
-      "expected_outcome": "Narration mangled past the point where the UTR can be read, and the bank posted a day late. Only amount-within-two-days can reach it, so this batch is deliberately left free of any other discrepancy - a shifted credit would put it out of reach of every rule.",
+      "expected_rule": "R1",
+      "expected_outcome": "Narration corrupted with lookalike glyphs (0/1/5 -> O/I/S), not deleted digits - the regex cannot read through it, but a model can, recovering the full UTR and matching by R1 as inference rather than a rule. The bank also posted a day late, so if the AI layer is switched off entirely, R4 (amount within two days) is still there as the fallback. This batch is deliberately left free of any other discrepancy - a shifted credit would put it out of reach of every rule.",
       "cases": [
         5
       ]
@@ -377,8 +377,8 @@
     },
     {
       "number": 5,
-      "name": "Garbled narration, UTR unreadable",
-      "expected": "matched on amount within +/-2 days, lower confidence",
+      "name": "Garbled narration, UTR recoverable only by reading past it",
+      "expected": "matched by R1, credited as inference - recovered by the model where the regex could not",
       "settlement_ids": [
         "setl_F6T1"
       ],
@@ -431,6 +431,13 @@
       "settlement_ids": [
         "setl_E5R8"
       ],
+      "bank_refs": []
+    },
+    {
+      "number": 11,
+      "name": "Bank statement column headers drifted from canonical names",
+      "expected": "all 14 rows still parse; 'particulars' resolved by alias, 'reference_no' by the LLM tier",
+      "settlement_ids": [],
       "bank_refs": []
     }
   ]

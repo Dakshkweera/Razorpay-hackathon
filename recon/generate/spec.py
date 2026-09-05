@@ -157,10 +157,13 @@ BATCHES: tuple[BatchSpec, ...] = (
         narration_style="garbled",
         bank_lag_days=1,
         cases=[5],
-        note="Narration mangled past the point where the UTR can be read, and the "
-        "bank posted a day late. Only amount-within-two-days can reach it, so "
-        "this batch is deliberately left free of any other discrepancy - a "
-        "shifted credit would put it out of reach of every rule.",
+        note="Narration corrupted with lookalike glyphs (0/1/5 -> O/I/S), not deleted "
+        "digits - the regex cannot read through it, but a model can, recovering the "
+        "full UTR and matching by R1 as inference rather than a rule. The bank also "
+        "posted a day late, so if the AI layer is switched off entirely, R4 (amount "
+        "within two days) is still there as the fallback. This batch is deliberately "
+        "left free of any other discrepancy - a shifted credit would put it out of "
+        "reach of every rule.",
     ),
     BatchSpec(
         settlement_id="setl_G7V4",
@@ -235,10 +238,12 @@ CASE_TABLE: tuple[tuple[int, str, str], ...] = (
     (2, "Fees and GST only", "gap fully decomposed, residual 0"),
     (3, "Refund settled in next cycle", "found by adjacent-cycle search, both ends resolved"),
     (4, "Fee charged at 1.2% vs contracted 0.8%", "flagged as fee_rate_drift"),
-    (5, "Garbled narration, UTR unreadable", "matched on amount within +/-2 days, lower confidence"),
+    (5, "Garbled narration, UTR recoverable only by reading past it", "matched by R1, credited as inference - recovered by the model where the regex could not"),
     (6, "Two batches, identical amount, same day", "ambiguous - exception, not a guess"),
     (7, "Duplicate UTR across two bank lines", "flagged, not double-counted"),
     (8, "Bank credit with no settlement at all", "exception"),
     (9, "Settlement with no bank credit", "exception, marked likely timing"),
     (10, "Genuinely unexplainable Rs 1,800", "exception, no invented cause"),
+    (11, "Bank statement column headers drifted from canonical names",
+     "all 14 rows still parse; 'particulars' resolved by alias, 'reference_no' by the LLM tier"),
 )
