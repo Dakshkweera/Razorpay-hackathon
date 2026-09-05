@@ -337,6 +337,12 @@ class RunMeta(BaseModel):
     llm_mode: LlmMode = LlmMode.OFF
     llm_calls: int = 0
     llm_cache_hits: int = 0
+    #: Calls the backend refused or could not answer. Non-zero in ``live`` mode means
+    #: the run silently fell back to its deterministic floor: still a valid
+    #: reconciliation, but not the one the mode claims. Reporting it is the difference
+    #: between a degraded run and a run that merely looks successful.
+    llm_errors: int = 0
+    llm_error_detail: str = ""
     #: SHA-256 over the report with volatile fields stripped. Two runs on the same
     #: input must produce the same value.
     deterministic_hash: str = ""

@@ -1,0 +1,5 @@
+{
+  "confidence": 0.94,
+  "label": "fee_rate_drift",
+  "reasoning": "The supplied evidence directly shows an overcharge relative to contract: ₹2,211.41 was charged against ₹1,474.35 at the contracted rate, which was computed as an effective 1.20% versus the agreed 0.80%. That aligns with the residual amount being attributable to fee-rate drift, while rounding has already been ruled out and the other checks did not identify an alternative cause."
+}

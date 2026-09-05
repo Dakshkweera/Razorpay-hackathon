@@ -278,7 +278,15 @@ def deterministic_hash(report: Report) -> str:
     including a first run that has to call a live model and a second that replays it.
     """
     payload = report.model_dump(mode="json")
-    for key in ("run_at", "runtime_ms", "deterministic_hash", "llm_calls", "llm_cache_hits"):
+    for key in (
+        "run_at",
+        "runtime_ms",
+        "deterministic_hash",
+        "llm_calls",
+        "llm_cache_hits",
+        "llm_errors",
+        "llm_error_detail",
+    ):
         payload["meta"].pop(key, None)
     payload["scoreboard"].pop("runtime_ms", None)
     canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
@@ -332,6 +340,8 @@ def run(data_dir: Path, seed: int = 42, llm_mode: LlmMode | None = None) -> Repo
             llm_mode=mode,
             llm_calls=getattr(provider, "calls", 0),
             llm_cache_hits=getattr(provider, "cache_hits", 0),
+            llm_errors=getattr(provider, "errors", 0),
+            llm_error_detail=getattr(provider, "last_error", ""),
         ),
         normalise=inputs.normalise,
         narrations=narration_reads,

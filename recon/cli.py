@@ -160,6 +160,7 @@ def print_scoreboard(report: Report) -> None:
     print(
         f"  LLM                      {report.meta.llm_provider}/{report.meta.llm_mode.value}"
         f"   calls {report.meta.llm_calls}   cache hits {report.meta.llm_cache_hits}"
+        f"   errors {report.meta.llm_errors}"
     )
     print()
     print(
@@ -185,6 +186,18 @@ def print_scoreboard(report: Report) -> None:
     print(f"  FALSE CAUSE ATTRIBUTIONS {board.false_cause_attributions:>7}")
     print()
     print(f"  deterministic hash  {report.meta.deterministic_hash}")
+
+    if report.meta.llm_errors:
+        # Loud on purpose. The reconciliation is still valid - every caller falls back
+        # to a deterministic floor - but a run reported as "live" that never reached the
+        # model is exactly the kind of thing that gets claimed on a slide by accident.
+        print()
+        print(f"  !! LLM DEGRADED: {report.meta.llm_errors} call"
+              f"{'s' if report.meta.llm_errors != 1 else ''} failed and fell back to the "
+              "deterministic stub.")
+        if report.meta.llm_error_detail:
+            print(f"     {report.meta.llm_error_detail}")
+        print("     Results below came from rules, not from the model.")
 
 
 def cmd_verify(args: argparse.Namespace) -> int:
@@ -271,8 +284,25 @@ def cmd_serve(args: argparse.Namespace) -> int:
 _LLM_CHOICES = [mode.value for mode in LlmMode]
 
 
+def _load_env() -> None:
+    """Read .env into the environment, if one exists.
+
+    Without this, a key sitting in .env is invisible: everything downstream reads
+    ``os.environ`` directly, so mode resolution would quietly fall through to the
+    cached fixtures and the run would look like it worked. Values already exported in
+    the shell win, which is what makes ``PERPLEXITY_API_KEY=... recon run`` behave the
+    way anyone would expect.
+    """
+    try:
+        from dotenv import load_dotenv
+    except ImportError:  # optional dependency; exporting the variable still works
+        return
+    load_dotenv(Path(".env"), override=False)
+
+
 def main(argv: list[str] | None = None) -> int:
     _use_utf8()
+    _load_env()
     parser = argparse.ArgumentParser(prog="recon", description=__doc__)
     parser.add_argument("--seed", type=int, default=42, help="dataset seed (default: 42)")
     sub = parser.add_subparsers(dest="command", required=True)

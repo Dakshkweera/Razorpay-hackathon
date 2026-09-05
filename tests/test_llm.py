@@ -270,3 +270,74 @@ def test_unknown_header_falls_through_to_the_llm():
 def test_unknown_header_without_a_provider_is_left_unmapped():
     resolved, mappings = resolve_headers(["mystery_column"], CANONICAL, provider=None)
     assert "mystery_column" not in resolved
+
+
+# --------------------------------------------------------------------------- #
+# The engine disposes
+# --------------------------------------------------------------------------- #
+
+def test_a_proposed_cause_the_engine_already_settled_is_refuted():
+    """High confidence is not evidence.
+
+    Asked about the residue on setl_E5R8, Sonar proposed "unlinked_adjustment" at 0.96
+    - reasoning circularly that because an adjustment had been found on the batch, the
+    remainder must be one too. The threshold alone would have let that through, which is
+    why the proposal is checked against what the deterministic pass already established.
+    """
+    from recon.classify.residue import _refute
+    from recon.money import Paise
+    from recon.report import BatchReport, ComponentKind, ComponentSource, GapComponent
+
+    from datetime import date, datetime, timezone
+
+    batch = BatchReport(
+        settlement_id="setl_TEST",
+        utr="1",
+        settled_at=datetime(2026, 8, 10, tzinfo=timezone.utc),
+        window_start=date(2026, 8, 7),
+        window_end=date(2026, 8, 9),
+        residual=Paise(180_000),
+        components=[
+            GapComponent(
+                kind=ComponentKind.UNLINKED_ADJUSTMENT,
+                amount=Paise(167_600),
+                source=ComponentSource.DETERMINISTIC,
+                check="unlinked adjustments",
+            )
+        ],
+    )
+
+    refutation = _refute(batch, "unlinked_adjustment")
+    assert refutation is not None
+    assert "already ran" in refutation
+
+    # A cause no deterministic check owns is not refutable this way, and is left to
+    # the confidence threshold to judge.
+    assert _refute(batch, "chargeback_not_yet_reported") is None
+
+
+def test_the_refuted_cause_never_reaches_the_scoreboard():
+    from recon.evaluate.score import load_truth, score
+    from recon.generate.build import build
+    from recon.generate.writer import write_dataset
+    from recon.pipeline import run
+    from recon.report import ComponentKind, LlmMode
+    import tempfile
+    from pathlib import Path
+
+    with tempfile.TemporaryDirectory() as tmp:
+        data_dir = Path(tmp)
+        write_dataset(build(seed=42), data_dir)
+        report = run(data_dir, llm_mode=LlmMode.CACHE)
+        evaluation = score(report, load_truth(data_dir / "truth.json"))
+
+    assert evaluation.false_cause_attributions == 0
+    residue = [
+        component
+        for batch in report.batches
+        for component in batch.components
+        if component.kind is ComponentKind.UNEXPLAINED
+    ]
+    assert residue, "the planted residue must still be reported"
+    for component in residue:
+        assert component.attributed is False, "an unexplained amount claims no cause"

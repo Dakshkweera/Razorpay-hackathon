@@ -19,6 +19,7 @@ import json
 from typing import Any
 
 from recon.llm.base import LlmError, LlmProvider
+from recon.money import format_inr
 from recon.report import (
     Attempt,
     BatchReport,
@@ -26,6 +27,7 @@ from recon.report import (
     ComponentSource,
     ExceptionKind,
     ExceptionReport,
+    RuledOut,
 )
 
 #: Below this, a proposed classification is refused and the residue stays "unexplained".
@@ -103,6 +105,49 @@ def classify(batch: BatchReport, exception: ExceptionReport, provider: LlmProvid
         return None
 
 
+#: Model labels that name a cause a deterministic check already owns.
+_CHECKED_CAUSES: dict[str, ComponentKind] = {
+    "fee": ComponentKind.FEE,
+    "fee_rate_drift": ComponentKind.FEE_RATE_DRIFT,
+    "gst_on_fee": ComponentKind.GST_ON_FEE,
+    "cross_cycle_refund": ComponentKind.CROSS_CYCLE_REFUND,
+    "unlinked_adjustment": ComponentKind.UNLINKED_ADJUSTMENT,
+    "rounding": ComponentKind.ROUNDING,
+}
+
+
+def _refute(batch: BatchReport, label: str) -> str | None:
+    """Check a proposed cause against what the engine already established.
+
+    The model proposes; the engine disposes. Every cause in ``_CHECKED_CAUSES`` has a
+    deterministic check that already ran to completion over this batch, so proposing one
+    of them for the *leftover* is refutable on the spot: whatever that check could
+    account for, it already did, and the residue is by definition what it could not.
+
+    This exists because a real model will do it. Asked about a residue on a batch that
+    also has a genuine unlinked adjustment, Sonar proposed "unlinked_adjustment" at 0.96
+    confidence - reasoning, circularly, that because an adjustment had been found the
+    remainder must be one too. High confidence is not evidence, and a threshold alone
+    would have let that through.
+    """
+    kind = _CHECKED_CAUSES.get(label.strip().lower())
+    if kind is None:
+        return None
+    already = next(
+        (c for c in batch.components if c.kind is kind and c.attributed), None
+    )
+    if already is not None:
+        return (
+            f"the {label} check already ran and attributed "
+            f"{format_inr(already.amount)}; this residue is what it could not account "
+            f"for, so the same cause cannot explain it again."
+        )
+    return (
+        f"the {label} check ran against this batch and found nothing to attribute, so "
+        f"it cannot be the cause of the residue."
+    )
+
+
 def apply(
     batches: list[BatchReport],
     exceptions: list[ExceptionReport],
@@ -137,29 +182,49 @@ def apply(
         if result is None:
             continue
 
-        attributed = result.confidence >= RESIDUE_CONFIDENCE_THRESHOLD
+        refutation = _refute(batch, result.label)
+        above_threshold = result.confidence >= RESIDUE_CONFIDENCE_THRESHOLD
+        attributed = above_threshold and refutation is None
+
         component.source = ComponentSource.LLM
         component.confidence = result.confidence
-        component.attributed = attributed
-        component.detail = f"{result.label}: {result.reasoning}"
+        # An unexplained component is never "attributed" - the flag records whether a
+        # cause was committed to, and here none was.
+        component.attributed = False
+        component.detail = (
+            f"proposed {result.label!r}, rejected: {refutation}"
+            if refutation
+            else f"{result.label}: {result.reasoning}"
+        )
 
         exception.confidence = result.confidence
         exception.threshold = RESIDUE_CONFIDENCE_THRESHOLD
         verdict = (
-            f"The classifier proposed \"{result.label}\" at confidence "
-            f"{result.confidence:.2f}"
+            f'The classifier proposed "{result.label}" at confidence {result.confidence:.2f}'
         )
-        exception.what += (
-            f" {verdict}, at or above the {RESIDUE_CONFIDENCE_THRESHOLD:.2f} threshold: "
-            f"{result.reasoning}"
-            if attributed
-            else f" {verdict}, below the {RESIDUE_CONFIDENCE_THRESHOLD:.2f} threshold - "
-            "not attributed."
-        )
+        if refutation:
+            exception.what += (
+                f" {verdict}, but the engine refuted it: {refutation} The amount stays "
+                "unexplained."
+            )
+            exception.ruled_out.append(
+                RuledOut(check=f"proposed cause: {result.label}", reason=refutation)
+            )
+        elif above_threshold:
+            exception.what += (
+                f" {verdict}, at or above the {RESIDUE_CONFIDENCE_THRESHOLD:.2f} "
+                f"threshold: {result.reasoning}"
+            )
+        else:
+            exception.what += (
+                f" {verdict}, below the {RESIDUE_CONFIDENCE_THRESHOLD:.2f} threshold - "
+                "not attributed."
+            )
         exception.tried.append(
             Attempt(
                 check="LLM residue classification",
-                outcome=f"proposed {result.label!r} at confidence {result.confidence:.2f}",
+                outcome=f"proposed {result.label!r} at confidence {result.confidence:.2f}"
+                + (" - refuted by the engine" if refutation else ""),
                 attributed=batch.residual if attributed else None,
             )
         )

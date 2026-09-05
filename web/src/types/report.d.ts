@@ -113,6 +113,8 @@ export type DataDir = string;
 export type DeterministicHash = string;
 export type LlmCacheHits = number;
 export type LlmCalls = number;
+export type LlmErrorDetail = string;
+export type LlmErrors = number;
 export type LlmMode = "stub" | "cache" | "live" | "off";
 export type LlmProvider = string;
 export type RunAt = string | null;
@@ -357,6 +359,8 @@ export interface RunMeta {
   deterministic_hash: DeterministicHash;
   llm_cache_hits: LlmCacheHits;
   llm_calls: LlmCalls;
+  llm_error_detail: LlmErrorDetail;
+  llm_errors: LlmErrors;
   llm_mode: LlmMode;
   llm_provider: LlmProvider;
   run_at: RunAt;

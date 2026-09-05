@@ -43,7 +43,11 @@ class PerplexityProvider:
             )
         self._api_key = key
         self._model = model or os.environ.get("PERPLEXITY_MODEL", DEFAULT_MODEL)
-        self._base_url = base_url.rstrip("/")
+        # Any OpenAI-compatible gateway serving a Sonar model works here - OpenRouter,
+        # for one, whose keys start `sk-or-`. Sending such a key to api.perplexity.ai
+        # earns a 401, so the endpoint is configurable rather than assumed.
+        self._base_url = (os.environ.get("PERPLEXITY_BASE_URL") or base_url).rstrip("/")
+        self._native = self._base_url == DEFAULT_BASE_URL.rstrip("/")
         self._timeout = timeout
 
     def complete_json(
@@ -54,10 +58,9 @@ class PerplexityProvider:
         system: str,
         user: str,
     ) -> dict[str, Any]:
-        payload = {
+        payload: dict[str, Any] = {
             "model": self._model,
             "temperature": 0,
-            "disable_search": True,
             "messages": [
                 {"role": "system", "content": system},
                 {"role": "user", "content": user},
@@ -67,6 +70,12 @@ class PerplexityProvider:
                 "json_schema": {"name": schema_name, "schema": schema},
             },
         }
+        if self._native:
+            # Perplexity-only. Narration parsing needs the model as a text transformer,
+            # not a search engine - grounding would add latency and non-determinism for
+            # no benefit. Gateways that do not know the parameter reject the request.
+            payload["disable_search"] = True
+
         try:
             response = httpx.post(
                 f"{self._base_url}/chat/completions",

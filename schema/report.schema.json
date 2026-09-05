@@ -889,6 +889,16 @@
           "title": "Llm Calls",
           "type": "integer"
         },
+        "llm_error_detail": {
+          "default": "",
+          "title": "Llm Error Detail",
+          "type": "string"
+        },
+        "llm_errors": {
+          "default": 0,
+          "title": "Llm Errors",
+          "type": "integer"
+        },
         "llm_mode": {
           "$ref": "#/$defs/LlmMode",
           "default": "off"
@@ -932,6 +942,8 @@
         "deterministic_hash",
         "llm_cache_hits",
         "llm_calls",
+        "llm_error_detail",
+        "llm_errors",
         "llm_mode",
         "llm_provider",
         "run_at",

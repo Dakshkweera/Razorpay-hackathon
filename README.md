@@ -209,9 +209,49 @@ Live mode uses `sonar` with `disable_search: true`, `response_format: json_schem
 and `temperature: 0` — structured extraction with no web grounding, which is what
 narration parsing actually needs.
 
+Copy `.env.example` to `.env` and fill in the key — the CLI loads it at startup, and
+values already exported in your shell win.
+
 ```bash
-export PERPLEXITY_API_KEY=...   # see .env.example
 .venv/Scripts/python -m recon.cli run --llm live
+```
+
+The endpoint is configurable, because "a Perplexity key" and "an OpenRouter key" are
+different things and sending one to the other's API earns a 401. Leave
+`PERPLEXITY_BASE_URL` unset for Perplexity direct (`pplx-` keys); point it at
+`https://openrouter.ai/api/v1` with `PERPLEXITY_MODEL=perplexity/sonar` for an
+OpenRouter key (`sk-or-`).
+
+A live run that cannot reach the model does **not** quietly succeed. Every caller falls
+back to its deterministic floor so a demo never crashes, but the failure is counted and
+the scoreboard says so:
+
+```
+LLM   perplexity/live   calls 1   cache hits 0   errors 1
+
+!! LLM DEGRADED: 1 call failed and fell back to the deterministic stub.
+   perplexity request failed: Client error '401 Unauthorized' ...
+   Results below came from rules, not from the model.
+```
+
+### The model proposes, the engine disposes
+
+Asked to classify the ₹1,800 residue, Sonar proposed **`unlinked_adjustment` at 0.96
+confidence** — reasoning, circularly, that because an unlinked adjustment had been found
+on that batch, the remainder must be one too. That is exactly the failure this project
+exists to prevent, and a confidence threshold alone would have let it straight through.
+
+So a proposed cause is checked against what the deterministic pass already established.
+The unlinked-adjustment check had already run and attributed ₹1,676; the residue is by
+definition what that check *could not* account for, so the same cause cannot explain it
+again. The proposal is refuted, the money stays unexplained, and the exception records
+the refusal:
+
+```
+The classifier proposed "unlinked_adjustment" at confidence 0.96, but the engine
+refuted it: the unlinked_adjustment check already ran and attributed ₹1,676.00;
+this residue is what it could not account for, so the same cause cannot explain
+it again. The amount stays unexplained.
 ```
 
 ---
@@ -226,9 +266,8 @@ Stated here rather than discovered by a reviewer:
   `40291433####`) leaves eight digits — below the nine-digit reference floor and
   short of a full UTR. The AI's measurable contribution to *matching* is therefore
   zero, and the scoreboard says so rather than rounding it up.
-- **The committed fixtures are stub output, not model responses.** They were
-  generated offline by `StubProvider`. Running `--llm live` with a real key
-  overwrites them with genuine responses.
+- The committed fixtures are now genuine model output, captured from a live run. The
+  demo replays them offline in `cache` mode and reproduces the live figures exactly.
 - Ten planted cases is a floor, not a ceiling. Chargebacks, partial settlements,
   multi-currency and TDS are all out of scope for this loop.
 

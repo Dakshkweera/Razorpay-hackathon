@@ -18,7 +18,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from recon.llm.base import LlmProvider
+from recon.llm.base import LlmError, LlmProvider
 
 DEFAULT_CACHE_DIR = Path("fixtures/llm")
 
@@ -54,6 +54,12 @@ class CachingProvider:
         self.name = inner.name
         self.calls = 0
         self.cache_hits = 0
+        #: Calls the backend could not answer. Callers deliberately swallow LlmError
+        #: and fall back to their deterministic floor, which keeps a demo alive but
+        #: would otherwise make a run that never reached the model indistinguishable
+        #: from one that did. Counting here is what lets the report say so.
+        self.errors = 0
+        self.last_error = ""
 
     def _path(self, key: str) -> Path:
         return self._dir / f"{key}.json"
@@ -73,9 +79,15 @@ class CachingProvider:
             self.cache_hits += 1
             return json.loads(path.read_text(encoding="utf-8"))
 
-        result = self._inner.complete_json(
-            schema_name=schema_name, schema=schema, system=system, user=user
-        )
+        try:
+            result = self._inner.complete_json(
+                schema_name=schema_name, schema=schema, system=system, user=user
+            )
+        except LlmError as error:
+            self.errors += 1
+            if not self.last_error:
+                self.last_error = str(error)[:200]
+            raise
         if not self._read_only:
             self._dir.mkdir(parents=True, exist_ok=True)
             path.write_text(
