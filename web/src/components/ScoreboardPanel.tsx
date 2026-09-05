@@ -31,10 +31,45 @@ export function ScoreboardPanel({ report }: { report: Report }) {
       </Panel>
 
       <Panel title="LLM" hint="deterministic where money is concerned; AI only over unstructured text">
+        {/* A run that never reached the model must never look like one that did. Every
+            caller falls back to a deterministic floor so nothing crashes, which is
+            exactly why the failure has to be stated here rather than inferred from a
+            call count nobody reads. */}
+        {report.meta.llm_errors > 0 && (
+          <div className="border-b border-line bg-bad-soft px-4 py-2.5">
+            <p className="text-[12px] font-semibold text-bad">
+              Degraded — {count(report.meta.llm_errors)}{" "}
+              {report.meta.llm_errors === 1 ? "call" : "calls"} failed and fell back to
+              the deterministic stub.
+            </p>
+            {report.meta.llm_error_detail && (
+              <p className="num mt-1 text-[11px] leading-relaxed text-ink-soft">
+                {report.meta.llm_error_detail}
+              </p>
+            )}
+            <p className="mt-1 text-[11px] text-ink-soft">
+              The reconciliation below is still valid, but its narration reading and
+              residue classification came from rules, not from the model.
+            </p>
+          </div>
+        )}
         <div className="grid grid-cols-2 divide-x divide-line sm:grid-cols-4">
-          <Stat label="Provider" value={report.meta.llm_provider} sub={report.meta.llm_mode} />
+          <Stat
+            label="Provider"
+            value={report.meta.llm_provider}
+            sub={report.meta.llm_mode}
+            tone={report.meta.llm_errors > 0 ? "bad" : "plain"}
+          />
           <Stat label="Calls" value={count(report.meta.llm_calls)} />
-          <Stat label="Cache hits" value={count(report.meta.llm_cache_hits)} />
+          <Stat
+            label={report.meta.llm_errors > 0 ? "Failed calls" : "Cache hits"}
+            value={count(
+              report.meta.llm_errors > 0
+                ? report.meta.llm_errors
+                : report.meta.llm_cache_hits,
+            )}
+            tone={report.meta.llm_errors > 0 ? "bad" : "plain"}
+          />
           <Stat
             label="Matched by inference"
             value={count(board.matched_inference.n)}
