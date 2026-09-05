@@ -223,7 +223,10 @@ def cmd_verify(args: argparse.Namespace) -> int:
         print(f"  {'OK  ' if same else 'FAIL'}  {name} regenerates byte-identical from seed "
               f"{args.seed}")
 
-    llm_mode = _llm_mode(args)
+    # A determinism check must not depend on the network. Two live calls can differ for
+    # reasons that say nothing about this pipeline, and `verify` reads as a free local
+    # check - it should not spend an API key nobody asked it to spend.
+    llm_mode = LlmMode(args.llm) if getattr(args, "llm", None) else LlmMode.CACHE
     first = run_pipeline(data_dir, seed=args.seed, llm_mode=llm_mode)
     second = run_pipeline(data_dir, seed=args.seed, llm_mode=llm_mode)
     runs_ok = first.meta.deterministic_hash == second.meta.deterministic_hash

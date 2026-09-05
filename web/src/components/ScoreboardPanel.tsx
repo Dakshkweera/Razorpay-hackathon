@@ -1,6 +1,6 @@
 import type { Report } from "../types/report";
 import { count, inr, pct } from "../lib/format";
-import { Note, Panel, Stat } from "./ui";
+import { Badge, Note, Panel, Stat } from "./ui";
 
 /**
  * The scoreboard. Its point is the bottom row: a wrong match is worse than an
@@ -11,8 +11,26 @@ export function ScoreboardPanel({ report }: { report: Report }) {
   const board = report.scoreboard;
   const clean = board.false_matches === 0 && board.false_cause_attributions === 0;
 
+  const matchedBatches = report.batches.filter((batch) => batch.bank_credit !== null);
+  const ordersTotal = matchedBatches.reduce((sum, batch) => sum + batch.orders_expected, 0);
+  const razorpayTotal = matchedBatches.reduce((sum, batch) => sum + batch.settlement_expected_credit, 0);
+  const bankTotal = matchedBatches.reduce((sum, batch) => sum + (batch.bank_credit ?? 0), 0);
+
   return (
     <div className="grid gap-3">
+      <Panel title="Headline" hint="order value, what Razorpay settled, what the bank actually credited">
+        <div className="grid grid-cols-2 divide-x divide-y divide-line sm:grid-cols-4 sm:divide-y-0">
+          <HeadlineStat label="Order value sold" value={inr(ordersTotal)} tone="plain" />
+          <HeadlineStat label="Razorpay settlement" value={inr(razorpayTotal)} tone="info" />
+          <HeadlineStat label="Bank credit received" value={inr(bankTotal)} tone="ok" />
+          <HeadlineStat
+            label="Gap"
+            value={inr(board.gap_total)}
+            tone={board.gap_total > 0 ? "warn" : "ok"}
+          />
+        </div>
+      </Panel>
+
       <Panel title="Throughput" hint="one run, measured">
         <div className="grid grid-cols-2 divide-x divide-line sm:grid-cols-4">
           <Stat
@@ -133,8 +151,22 @@ export function ScoreboardPanel({ report }: { report: Report }) {
 
       <Panel
         title="Correctness"
-        hint={clean ? "scored against planted truth" : "review before reporting"}
+        hint={clean ? "verified against planted truth" : "review before reporting"}
+        right={
+          <Badge tone={clean ? "ok" : "bad"}>
+            {clean ? "✓ Verified accurate" : "Needs review"}
+          </Badge>
+        }
       >
+        {clean && (
+          <div className="border-b border-line bg-ok-soft px-4 py-3">
+            <p className="text-[13px] font-semibold text-ok">
+              {report.evaluation
+                ? `${count(report.evaluation.cases_passed)} of ${count(report.evaluation.cases_total)} planted cases verified correct — zero wrong matches, zero wrong causes.`
+                : "Zero wrong matches, zero wrong causes against the planted truth file."}
+            </p>
+          </div>
+        )}
         <div className="grid grid-cols-2 divide-x divide-line">
           <Stat
             label="False matches"
@@ -150,10 +182,37 @@ export function ScoreboardPanel({ report }: { report: Report }) {
           />
         </div>
         <Note>
-          Both are counted against a truth file the reconciler never reads. A wrong match is
-          worse than an honest gap: it closes the books on a real problem.
+          Both are counted against a truth file the reconciler never reads. Zero here is the
+          best possible score — a wrong match is worse than an honest gap, because it closes
+          the books on a real problem.
         </Note>
       </Panel>
+    </div>
+  );
+}
+
+function HeadlineStat({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone: "plain" | "ok" | "warn" | "bad" | "info";
+}) {
+  const toneClass = {
+    plain: "text-ink",
+    ok: "text-ok",
+    warn: "text-warn",
+    bad: "text-bad",
+    info: "text-info",
+  }[tone];
+  return (
+    <div className="px-4 py-4">
+      <div className="text-[11px] uppercase tracking-wide text-ink-faint">{label}</div>
+      <div className={`num mt-1.5 text-[26px] font-bold leading-none sm:text-[32px] ${toneClass}`}>
+        {value}
+      </div>
     </div>
   );
 }

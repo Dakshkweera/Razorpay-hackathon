@@ -12,8 +12,8 @@ export function Panel({
   children: ReactNode;
 }) {
   return (
-    <section className="rounded-md border border-line bg-surface">
-      <header className="flex items-baseline justify-between gap-4 border-b border-line px-4 py-2.5">
+    <section className="rounded-lg border border-line bg-surface shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+      <header className="flex items-baseline justify-between gap-4 border-b border-line px-4 py-3">
         <div className="flex items-baseline gap-3">
           <h2 className="text-[13px] font-semibold tracking-tight">{title}</h2>
           {hint && <p className="text-[11px] text-ink-faint">{hint}</p>}
@@ -75,7 +75,7 @@ export function Badge({
   return (
     <span
       title={title}
-      className={`inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${toneClass}`}
+      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${toneClass}`}
     >
       {children}
     </span>
@@ -102,7 +102,7 @@ export function Th({
 }) {
   return (
     <th
-      className={`border-b border-line px-3 py-2 font-medium ${
+      className={`border-b border-line px-3 py-2.5 font-medium ${
         align === "right" ? "text-right" : "text-left"
       }`}
     >
@@ -126,7 +126,7 @@ export function Td({
 }) {
   return (
     <td
-      className={`border-b border-line px-3 py-1.5 ${align === "right" ? "text-right" : ""} ${
+      className={`border-b border-line px-3 py-2 ${align === "right" ? "text-right" : ""} ${
         mono ? "num" : ""
       } ${muted ? "text-ink-faint" : ""} ${className}`}
     >

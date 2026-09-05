@@ -20,7 +20,7 @@ from fastapi.staticfiles import StaticFiles
 
 from recon.evaluate.score import attach
 from recon.ingest.csvparse import read_bank, read_orders, read_settlements
-from recon.llm import resolve_mode
+from recon.llm import build_provider, resolve_mode
 from recon.pipeline import run as run_pipeline
 from recon.report import LlmMode, Report
 
@@ -31,13 +31,20 @@ def create_app(
     data_dir: Path, report_path: Path, seed: int = 42, llm_mode: LlmMode | None = None
 ) -> FastAPI:
     mode = llm_mode if llm_mode is not None else resolve_mode()
+    provider = build_provider(mode)
     app = FastAPI(title="Settlement Explainer", version="0.1.0")
 
-    # The Vite dev server proxies /api, so this only matters if someone runs the two
-    # halves on different origins by hand.
+    # `recon serve` serves the built page and the API from one origin, so this matters
+    # only when the two halves are run separately - the Vite dev server on 5173
+    # proxying /api, or a page opened against this port directly.
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+        allow_origins=[
+            "http://localhost:5173",
+            "http://127.0.0.1:5173",
+            "http://localhost:8020",
+            "http://127.0.0.1:8020",
+        ],
         allow_methods=["*"],
         allow_headers=["*"],
     )
@@ -87,7 +94,7 @@ def create_app(
         if name not in readers:
             raise HTTPException(status_code=404, detail=f"unknown input file {name!r}")
         reader, filename = readers[name]
-        rows, normalise = reader(data_dir / filename)
+        rows, normalise = reader(data_dir / filename, provider)
         return JSONResponse(
             {
                 "file": filename,
